@@ -83,5 +83,27 @@
 </div>
 
 <script src="/static/script.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("sidebar-toggle");
+    const recipientSelect = document.getElementById("recipient-select");
+    const chatMain = document.querySelector(".chat-main");
+
+    // Close sidebar when recipient selection changes
+    if (recipientSelect) {
+      recipientSelect.addEventListener("change", () => {
+        if (window.innerWidth <= 768) toggle.checked = false;
+      });
+    }
+
+    // Close sidebar when clicking anywhere on the main chat interface workspace
+    if (chatMain) {
+      chatMain.addEventListener("click", () => {
+        if (window.innerWidth <= 768) toggle.checked = false;
+      });
+    }
+  });
+</script>
 </body>
 </html>
