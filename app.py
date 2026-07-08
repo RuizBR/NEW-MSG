@@ -1,3 +1,4 @@
+import os  # Fixed: Imported os to establish rigid absolute database tracking
 import sqlite3
 import time
 import random
@@ -11,9 +12,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = "change-this-to-a-random-secret-in-production"
 
-USERS_DB = "users.db"
-CHAT_DB = "chat_fixed.db"
-VC_DB = "video_call.db"
+# Fixed: Explicitly pinpoint the absolute parent directory where app.py resides
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Fixed: Tied SQLite down to permanent files so data stops dropping on worker shifts
+USERS_DB = os.path.join(BASE_DIR, "users.db")
+CHAT_DB = os.path.join(BASE_DIR, "chat_fixed.db")
+VC_DB = os.path.join(BASE_DIR, "video_call.db")
 
 ONLINE_TIMEOUT = 10     # seconds - matches the old Streamlit polling window
 TYPING_TIMEOUT = 4      # seconds
