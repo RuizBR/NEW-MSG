@@ -1,83 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>💬 Team Chatbox</title>
-  <link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💬 Team Chatbox</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-  <div class="bg-mesh">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-  </div>
+<div class="bg-mesh">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
 
-  <div id="auth-screen" class="auth-wrap">
-    <div class="auth-card">
-      <h1>💬 Team Chatbox</h1>
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="login">Login</button>
-        <button class="tab-btn" data-tab="register">Register</button>
-      </div>
+<div id="auth-screen" class="auth-wrap">
+  <div class="auth-card">
+    <h1>💬 Team Chatbox</h1>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="login">Login</button>
+      <button class="tab-btn" data-tab="register">Register</button>
+    </div>
 
-      <div id="login-tab" class="tab-panel active">
-        <input type="text" id="login-username" placeholder="Username">
-        <input type="password" id="login-password" placeholder="Password">
-        <button id="login-btn" class="primary-btn">Login</button>
-        <p id="login-msg" class="msg"></p>
-      </div>
+    <div id="login-tab" class="tab-panel active">
+      <input type="text" id="login-username" placeholder="Username">
+      <input type="password" id="login-password" placeholder="Password">
+      <button id="login-btn" class="primary-btn">Login</button>
+      <p id="login-msg" class="msg"></p>
+    </div>
 
-      <div id="register-tab" class="tab-panel">
-        <input type="text" id="reg-username" placeholder="New Username">
-        <input type="password" id="reg-password" placeholder="New Password">
-        <button id="reg-btn" class="primary-btn">Register</button>
-        <p id="reg-msg" class="msg"></p>
-      </div>
+    <div id="register-tab" class="tab-panel">
+      <input type="text" id="reg-username" placeholder="New Username">
+      <input type="password" id="reg-password" placeholder="New Password">
+      <button id="reg-btn" class="primary-btn">Register</button>
+      <p id="reg-msg" class="msg"></p>
     </div>
   </div>
+</div>
 
-  <div id="chat-screen" class="chat-app hidden">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <span id="me-label"></span>
-        <button id="logout-btn" class="link-btn">Logout</button>
-      </div>
+<div id="chat-screen" class="chat-app hidden">
+  
+  <input type="checkbox" id="sidebar-toggle" class="sidebar-checkbox">
+  <label for="sidebar-toggle" class="sidebar-toggle-btn"><span></span></label>
 
-      <div class="online-users">
-        <h4 id="online-count">🟢 Online Users (0)</h4>
-        <ul id="online-list"></ul>
-      </div>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span id="me-label"></span>
+      <button id="logout-btn" class="link-btn">Logout</button>
+    </div>
 
-      <label class="field-label">Send To</label>
-      <select id="recipient-select"></select>
+    <div class="online-users">
+      <h4 id="online-count">🟢 Online Users (0)</h4>
+      <ul id="online-list"></ul>
+    </div>
 
-      <button id="clear-btn" class="secondary-btn">🧹 Clear Chat</button>
+    <label class="field-label">Send To</label>
+    <select id="recipient-select"></select>
 
-      <textarea id="chat-input" placeholder="Type a message..." rows="3"></textarea>
-      <button id="send-btn" class="primary-btn">Send</button>
+    <button id="clear-btn" class="secondary-btn">🧹 Clear Chat</button>
 
-      <label class="field-label">📎 Attach file</label>
-      <input type="file" id="file-input">
-      <button id="send-file-btn" class="secondary-btn">Send File</button>
+    <textarea id="chat-input" placeholder="Type a message..." rows="3"></textarea>
+    <button id="send-btn" class="primary-btn">Send</button>
 
-      <div id="video-section" class="video-section hidden">
-        <hr>
-        <h4>📹 Private Video Call</h4>
-        <div id="video-controls"></div>
-      </div>
-    </aside>
+    <label class="field-label">📎 Attach file</label>
+    <input type="file" id="file-input">
+    <button id="send-file-btn" class="secondary-btn">Send File</button>
 
-    <main class="chat-main">
-      <h2 id="chat-title">🌐 Public Chat</h2>
-      <p id="typing-indicator" class="typing-indicator"></p>
-      <div class="chat-container">
-        <div id="chat-box" class="chat-box"></div>
-      </div>
-    </main>
-  </div>
+    <div id="video-section" class="video-section hidden">
+      <hr>
+      <h4>📹 Private Video Call</h4>
+      <div id="video-controls"></div>
+    </div>
+  </aside>
 
-  <script src="/static/script.js"></script>
+  <main class="chat-main">
+    <h2 id="chat-title">🌐 Public Chat</h2>
+    <p id="typing-indicator" class="typing-indicator"></p>
+    <div class="chat-container">
+      <div id="chat-box" class="chat-box"></div>
+    </div>
+  </main>
+</div>
+
+<script src="/static/script.js"></script>
 </body>
 </html>
