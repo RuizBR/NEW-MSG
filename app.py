@@ -3,7 +3,7 @@ import time
 import random
 import string
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Flask, request, jsonify, session, send_from_directory, Response
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -73,7 +73,8 @@ def init_chat_db():
             msg_type TEXT,
             file_name TEXT,
             file_data BLOB,
-            timestamp TEXT
+            timestamp TEXT,
+            deleted_by TEXT DEFAULT ''
         )
     """)
     execute_write(CHAT_DB, """
@@ -106,6 +107,13 @@ def init_video_db():
 init_users_db()
 init_chat_db()
 init_video_db()
+
+
+# ================= 7-DAY CLEANUP AUTOMATION =================
+def prune_old_messages():
+    """Removes all messages from the database that are older than 7 days."""
+    one_week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+    execute_write(CHAT_DB, "DELETE FROM messages WHERE timestamp < ?", (one_week_ago,))
 
 
 # ================= AUTH HELPERS =================
@@ -238,33 +246,39 @@ def typing():
 @app.route("/api/messages")
 @login_required
 def get_messages():
+    prune_old_messages()  # Automatically clear data older than 7 days
     username = current_user()
-    recipient = request.args.get("recipient", "")  # "" means public
+    recipient = request.args.get("recipient", "")
 
     if recipient:
         query = """
-            SELECT id, user, recipient, message, msg_type, file_name, timestamp
+            SELECT id, user, recipient, message, msg_type, file_name, timestamp, deleted_by
             FROM messages
-            WHERE (user=? AND recipient=?) OR (user=? AND recipient=?)
+            WHERE ((user=? AND recipient=?) OR (user=? AND recipient=?))
             ORDER BY id
         """
         rows = execute_read(CHAT_DB, query, (username, recipient, recipient, username))
     else:
         query = """
-            SELECT id, user, recipient, message, msg_type, file_name, timestamp
+            SELECT id, user, recipient, message, msg_type, file_name, timestamp, deleted_by
             FROM messages
             WHERE recipient IS NULL OR recipient=''
             ORDER BY id
         """
         rows = execute_read(CHAT_DB, query)
 
-    messages = [
-        {
+    messages = []
+    for r in rows:
+        # Hide message if the current user has marked it as cleared
+        deleted_list = [u.strip() for u in r[7].split(",") if u.strip()]
+        if username in deleted_list:
+            continue
+
+        messages.append({
             "id": r[0], "user": r[1], "recipient": r[2], "message": r[3],
             "msg_type": r[4], "file_name": r[5], "timestamp": r[6],
-        }
-        for r in rows
-    ]
+        })
+        
     return jsonify({"messages": messages})
 
 
@@ -280,7 +294,7 @@ def send_message():
 
     execute_write(
         CHAT_DB,
-        "INSERT INTO messages VALUES (NULL,?,?,?, 'text', NULL, NULL, ?)",
+        "INSERT INTO messages VALUES (NULL,?,?,?, 'text', NULL, NULL, ?, '')",
         (username, recipient, message, datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
     )
     execute_write(CHAT_DB, "DELETE FROM typing_users WHERE username=?", (username,))
@@ -298,7 +312,7 @@ def upload_file():
 
     execute_write(
         CHAT_DB,
-        "INSERT INTO messages VALUES (NULL,?,?,NULL,'file',?,?,?)",
+        "INSERT INTO messages VALUES (NULL,?,?,NULL,'file',?,?,?,'')",
         (username, recipient, file.filename, file.read(), datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
     )
     return jsonify({"success": True})
@@ -335,18 +349,36 @@ def download_file(msg_id):
 @app.route("/api/clear", methods=["POST"])
 @login_required
 def clear_messages():
+    """Appends the current user to a 'deleted_by' tracking column instead of purging the database global storage."""
     username = current_user()
     data = request.get_json(force=True)
     recipient = data.get("recipient") or None
 
     if recipient is None:
-        execute_write(CHAT_DB, "DELETE FROM messages WHERE recipient IS NULL OR recipient=''")
+        # For public chats, find existing records and append the username
+        rows = execute_read(CHAT_DB, "SELECT id, deleted_by FROM messages WHERE recipient IS NULL OR recipient=''")
+        for r in rows:
+            msg_id, deleted_by = r
+            current_list = [u.strip() for u in deleted_by.split(",") if u.strip()]
+            if username not in current_list:
+                current_list.append(username)
+                new_deleted_by = ",".join(current_list)
+                execute_write(CHAT_DB, "UPDATE messages SET deleted_by=? WHERE id=?", (new_deleted_by, msg_id))
     else:
-        execute_write(
-            CHAT_DB,
-            "DELETE FROM messages WHERE (user=? AND recipient=?) OR (user=? AND recipient=?)",
-            (username, recipient, recipient, username),
+        # For private chats, append the username for the conversation records
+        rows = execute_read(
+            CHAT_DB, 
+            "SELECT id, deleted_by FROM messages WHERE (user=? AND recipient=?) OR (user=? AND recipient=?)",
+            (username, recipient, recipient, username)
         )
+        for r in rows:
+            msg_id, deleted_by = r
+            current_list = [u.strip() for u in deleted_by.split(",") if u.strip()]
+            if username not in current_list:
+                current_list.append(username)
+                new_deleted_by = ",".join(current_list)
+                execute_write(CHAT_DB, "UPDATE messages SET deleted_by=? WHERE id=?", (new_deleted_by, msg_id))
+
     return jsonify({"success": True})
 
 
