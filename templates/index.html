@@ -55,7 +55,9 @@
     </div>
 
     <label class="field-label">Send To</label>
-    <select id="recipient-select"></select>
+    <select id="recipient-select">
+      <option value="all">🌐 All (public)</option>
+    </select>
 
     <button id="clear-btn" class="secondary-btn">🧹 Clear Chat</button>
 
@@ -89,15 +91,51 @@
     const toggle = document.getElementById("sidebar-toggle");
     const recipientSelect = document.getElementById("recipient-select");
     const chatMain = document.querySelector(".chat-main");
+    const onlineList = document.getElementById("online-list");
+    const meLabel = document.getElementById("me-label");
 
-    // Close sidebar when recipient selection changes
+    // --- 1. AUTOMATIC USER SYNC FOR PRIVATE CHAT ---
+    const syncUsersToDropdown = () => {
+      // Keep track of the currently selected user so it doesn't get wiped out during updates
+      const currentSelection = recipientSelect.value;
+      
+      // Reset dropdown, always keeping the Public room at the top
+      recipientSelect.innerHTML = '<option value="all">🌐 All (public)</option>';
+      
+      // Get your current logged-in username to make sure you don't privately text yourself
+      const myUsername = meLabel ? meLabel.textContent.replace('👤', '').trim() : "";
+
+      // Extract raw names from your dynamic online UI list
+      const userElements = onlineList.querySelectorAll("li");
+      userElements.forEach(el => {
+        const username = el.textContent.replace('🟢', '').replace('🔴', '').trim();
+        
+        if (username && username !== myUsername) {
+          const opt = document.createElement("option");
+          opt.value = username;
+          opt.textContent = `🔒 Private: ${username}`;
+          recipientSelect.appendChild(opt);
+        }
+      });
+
+      // Restore user's choice if they are still online
+      recipientSelect.value = currentSelection;
+      if (!recipientSelect.value) recipientSelect.value = "all";
+    };
+
+    // Observe the online-list container. Whenever your JS alters it, the dropdown stays mirrored.
+    if (onlineList) {
+      const observer = new MutationObserver(syncUsersToDropdown);
+      observer.observe(onlineList, { childList: true, subtree: true });
+    }
+
+    // --- 2. MOBILE INTERACTION MANAGEMENT ---
     if (recipientSelect) {
       recipientSelect.addEventListener("change", () => {
         if (window.innerWidth <= 768) toggle.checked = false;
       });
     }
 
-    // Close sidebar when clicking anywhere on the main chat interface workspace
     if (chatMain) {
       chatMain.addEventListener("click", () => {
         if (window.innerWidth <= 768) toggle.checked = false;
