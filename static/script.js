@@ -69,18 +69,33 @@ function startChat(username) {
   state.pollTimer = setInterval(poll, 2000);
 }
 
-// ================= RECIPIENT SELECT =================
+// ================= RECIPIENT SELECT (FIXED & HYBRID SYNCHRONIZED) =================
 async function loadUsers() {
   const res = await fetch("/api/users");
   const data = await res.json();
   const select = $("recipient-select");
-  select.innerHTML = '<option value="">All (public)</option>';
+  
+  // Track current selection focus so we don't snap people back to public room mid-chat
+  const currentSelection = state.recipient;
+  
+  select.innerHTML = '<option value="">🌐 All (public)</option>';
+  
   data.users.forEach((u) => {
-    const opt = document.createElement("option");
-    opt.value = u;
-    opt.textContent = u;
-    select.appendChild(opt);
+    // Prevent rendering yourself in the private direct message option selection block
+    if (u !== state.username) {
+      const opt = document.createElement("option");
+      opt.value = u;
+      opt.textContent = `🔒 Private: ${u}`;
+      select.appendChild(opt);
+    }
   });
+
+  // Reapply previous focus cleanly
+  select.value = currentSelection;
+  if (!select.value) {
+    select.value = "";
+    state.recipient = "";
+  }
 }
 
 $("recipient-select").addEventListener("change", (e) => {
@@ -89,8 +104,23 @@ $("recipient-select").addEventListener("change", (e) => {
     ? `🔒 Private Chat with ${state.recipient}`
     : "🌐 Public Chat";
   $("video-section").classList.toggle("hidden", !state.recipient);
+  
+  // Close the mobile drawer panel automatically on mobile viewport interactions
+  const mobileToggle = $("sidebar-toggle");
+  if (mobileToggle && window.innerWidth <= 768) {
+    mobileToggle.checked = false;
+  }
+
   refreshMessages();
   refreshVideoStatus();
+});
+
+// Auto-close retractable mobile view sidebar when tapping on main chat messages workspace
+document.querySelector(".chat-main").addEventListener("click", () => {
+  const mobileToggle = $("sidebar-toggle");
+  if (mobileToggle && window.innerWidth <= 768) {
+    mobileToggle.checked = false;
+  }
 });
 
 // ================= CLEAR CHAT =================
@@ -154,6 +184,7 @@ $("send-file-btn").addEventListener("click", async () => {
 // ================= POLLING =================
 async function poll() {
   await refreshOnline();
+  await loadUsers(); // Repeatedly synchronizes active available user arrays to drop options smoothly
   await refreshMessages();
   await refreshTyping();
   if (state.recipient) await refreshVideoStatus();
