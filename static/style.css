@@ -1,7 +1,9 @@
+/* ================= GLOBAL MASTER RESET ================= */
 * { 
   box-sizing: border-box; 
   margin: 0;
   padding: 0;
+  transition: background 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s ease, transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 body {
@@ -11,11 +13,12 @@ body {
   overflow: hidden;
   height: 100vh;
   width: 100vw;
+  -webkit-font-smoothing: antialiased;
 }
 
 .hidden { display: none !important; }
 
-/* ---------- LIQUID GLASS DYNAMIC MESH BACKGROUND ---------- */
+/* ---------- LIQUID GLASS MESH COMPONENT ---------- */
 .bg-mesh {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -28,7 +31,7 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(90px);
-  opacity: 0.4;
+  opacity: 0.35;
   animation: liquidFloat 16s infinite alternate ease-in-out;
 }
 .orb-1 { width: 450px; height: 450px; background: #007aff; top: -10%; left: 15%; }
@@ -37,19 +40,19 @@ body {
 
 @keyframes liquidFloat {
   0% { transform: translateY(0) scale(1) rotate(0deg); }
-  100% { transform: translateY(50px) scale(1.15) rotate(45deg); }
+  100% { transform: translateY(40px) scale(1.12) rotate(30deg); }
 }
 
-/* ---------- SHARED LIQUID GLASS BASE STYLE ---------- */
-.auth-card, .sidebar, .chat-main {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(30px) saturate(210%);
-  -webkit-backdrop-filter: blur(30px) saturate(210%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 12px 35px rgba(0, 0, 0, 0.3);
+/* ---------- SYSTEM LAYER COMPONENT RULES ---------- */
+.sidebar, .chat-main, .auth-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(40px) saturate(210%);
+  -webkit-backdrop-filter: blur(40px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 12px 35px rgba(0, 0, 0, 0.3);
 }
 
-/* ---------- AUTH SCREEN ---------- */
+/* ---------- AUTH CONFIGURATION ---------- */
 .auth-wrap {
   min-height: 100vh;
   display: flex;
@@ -91,19 +94,18 @@ body {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.5);
   border-radius: 9px;
-  transition: all 0.2s ease;
 }
 
 .tab-btn.active {
   color: #fff;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-/* ---------- FORM CONTROLS (BLOCK LEVEL FOR SIDEBAR & AUTH) ---------- */
+/* ---------- INTERACTIVE UI FORMS ---------- */
 input[type="text"], 
 input[type="password"], 
 select, 
@@ -113,14 +115,13 @@ input[type="file"] {
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.3);
   border-radius: 12px;
   font-size: 14px;
   color: #fff;
   outline: none;
   font-family: inherit;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
 }
 
 input:focus, select:focus, textarea:focus {
@@ -128,7 +129,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
 }
 
-/* ---------- BUTTONS ---------- */
+/* ---------- INTERACTIVE EMULATED CONTROLS ---------- */
 .primary-btn {
   display: block;
   width: 100%;
@@ -142,28 +143,27 @@ input:focus, select:focus, textarea:focus {
   cursor: pointer;
   margin-bottom: 10px;
   box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 12px rgba(0, 122, 255, 0.3);
-  transition: all 0.2s ease;
 }
 .primary-btn:hover {
   background: linear-gradient(180deg, #4da4ff 0%, #006dd3 100%);
   transform: translateY(-1px);
 }
+.primary-btn:active { transform: translateY(0); }
 
 .secondary-btn {
   display: block;
   width: 100%;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   color: #fff;
   border-radius: 12px;
   margin: 6px 0 14px 0;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s ease;
 }
-.secondary-btn:hover { background: rgba(255, 255, 255, 0.15); }
+.secondary-btn:hover { background: rgba(255, 255, 255, 0.12); }
 
 .link-btn {
   background: none;
@@ -176,13 +176,18 @@ input:focus, select:focus, textarea:focus {
 
 .msg { font-size: 13px; color: #ff453a; min-height: 18px; text-align: center; margin-top: 6px; }
 
-/* ---------- CHAT APP LAYOUT ---------- */
+/* ---------- MASTER DESKTOP LAYOUT CONFIG ---------- */
 .chat-app {
   display: flex;
   height: 100vh;
   width: 100vw;
   padding: 20px;
   gap: 20px;
+  position: relative;
+}
+
+.sidebar-checkbox, .sidebar-toggle-btn {
+  display: none; /* Default Hidden on Workspace monitors */
 }
 
 .sidebar {
@@ -208,7 +213,7 @@ input:focus, select:focus, textarea:focus {
 .online-users h4 { 
   margin: 0 0 10px 0; 
   font-size: 12px; 
-  color: rgba(255,255,255,0.5); 
+  color: rgba(255,255,255,0.4); 
   text-transform: uppercase; 
   letter-spacing: 0.5px;
 }
@@ -216,12 +221,10 @@ input:focus, select:focus, textarea:focus {
 .online-users li { 
   font-size: 14px; 
   padding: 8px 12px; 
-  background: rgba(255,255,255,0.05); 
+  background: rgba(255,255,255,0.04); 
   margin-bottom: 6px; 
   border-radius: 10px; 
   font-weight: 500;
-  display: flex;
-  align-items: center;
 }
 
 .field-label {
@@ -231,12 +234,11 @@ input:focus, select:focus, textarea:focus {
   color: rgba(255, 255, 255, 0.4);
   margin: 10px 0 6px 2px;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
 input[type="file"] {
   background: rgba(255,255,255,0.03);
-  border: 1px dashed rgba(255,255,255,0.2);
+  border: 1px dashed rgba(255,255,255,0.15);
   cursor: pointer;
 }
 
@@ -244,13 +246,14 @@ input[type="file"] {
 .video-section hr { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0; }
 .video-section h4 { font-size: 13px; margin-bottom: 8px; color: #34c759; }
 
-/* ---------- CHAT MAIN WORKSPACE ---------- */
+/* ---------- CHAT SYSTEM VIEWPORTS ---------- */
 .chat-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   border-radius: 24px;
   padding: 24px;
+  overflow: hidden;
 }
 
 #chat-title { 
@@ -320,21 +323,19 @@ input[type="file"] {
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-/* User Bubble: Glossy iOS Blue */
 .bubble.me { 
   background: linear-gradient(180deg, rgba(0, 122, 255, 0.9) 0%, rgba(0, 95, 230, 0.95) 100%);
   color: #fff; 
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 6px 16px rgba(0, 122, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 6px 16px rgba(0, 122, 255, 0.3);
   border-bottom-right-radius: 4px;
 }
 
-/* Sender Bubble: Frost Translucent Glass */
 .bubble.them { 
   background: rgba(255, 255, 255, 0.12);
   color: #fff; 
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0,0,0,0.15);
   border-bottom-left-radius: 4px;
 }
 
@@ -348,4 +349,109 @@ input[type="file"] {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+
+/* ================= RE-ENGINEERED SMART PHONE MEDIA VIEWPORTS ================= */
+@media (max-width: 768px) {
+  .chat-app {
+    padding: 12px;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* Structural Checkbox Hack Mechanics */
+  .sidebar-checkbox {
+    display: none;
+  }
+
+  /* Custom Native iOS Hamburg-to-X Dynamic Icon Overlay */
+  .sidebar-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    z-index: 101;
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  
+  /* Pure CSS Hamburg Line Layouts */
+  .sidebar-toggle-btn span,
+  .sidebar-toggle-btn span::before,
+  .sidebar-toggle-btn span::after {
+    position: absolute;
+    width: 18px;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .sidebar-toggle-btn span::before { content: ''; top: -6px; }
+  .sidebar-toggle-btn span::after { content: ''; top: 6px; }
+
+  /* Relocate title header text clear of top navigation layer overlay */
+  #chat-title {
+    margin-left: 56px;
+    font-size: 20px;
+    line-height: 42px;
+  }
+
+  /* Transform fixed layout element inside structural responsive drawer */
+  .sidebar {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: 290px;
+    height: calc(100% - 24px);
+    z-index: 100;
+    transform: translateX(-110%);
+    background: rgba(13, 15, 26, 0.9);
+    backdrop-filter: blur(45px) saturate(220%);
+    -webkit-backdrop-filter: blur(45px) saturate(220%);
+    box-shadow: 10px 0 35px rgba(0,0,0,0.6);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* Trigger Sliding View State Changes */
+  .sidebar-checkbox:checked ~ .sidebar {
+    transform: translateX(0);
+  }
+
+  /* Morph Menu Button Icon directly into Close State */
+  .sidebar-checkbox:checked ~ .sidebar-toggle-btn {
+    left: 246px;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: none;
+  }
+  .sidebar-checkbox:checked ~ .sidebar-toggle-btn span { background: transparent; }
+  .sidebar-checkbox:checked ~ .sidebar-toggle-btn span::before { transform: rotate(45deg); top: 0; }
+  .sidebar-checkbox:checked ~ .sidebar-toggle-btn span::after { transform: rotate(-45deg); top: 0; }
+
+  /* Realign mobile primary chat viewport constraints */
+  .chat-main {
+    width: 100%;
+    padding: 16px;
+    border-radius: 20px;
+  }
+  
+  .chat-box {
+    padding: 14px;
+  }
+
+  .bubble {
+    max-width: 85%;
+  }
+}
