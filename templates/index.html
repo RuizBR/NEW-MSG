@@ -94,43 +94,53 @@
     const onlineList = document.getElementById("online-list");
     const meLabel = document.getElementById("me-label");
 
-    // --- 1. AUTOMATIC USER SYNC FOR PRIVATE CHAT ---
-    const syncUsersToDropdown = () => {
-      // Keep track of the currently selected user so it doesn't get wiped out during updates
+    // Rebuilds dropdown options dynamically by scraping the current active sidebar user elements
+    const forceSyncDropdown = () => {
       const currentSelection = recipientSelect.value;
       
-      // Reset dropdown, always keeping the Public room at the top
+      // Clear and set public default option
       recipientSelect.innerHTML = '<option value="all">🌐 All (public)</option>';
       
-      // Get your current logged-in username to make sure you don't privately text yourself
-      const myUsername = meLabel ? meLabel.textContent.replace('👤', '').trim() : "";
+      // Clean up your own username safely
+      let myUsername = meLabel ? meLabel.textContent.trim() : "";
+      myUsername = myUsername.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, "").trim();
 
-      // Extract raw names from your dynamic online UI list
-      const userElements = onlineList.querySelectorAll("li");
-      userElements.forEach(el => {
-        const username = el.textContent.replace('🟢', '').replace('🔴', '').trim();
+      // Scrape whatever list items currently exist in the online panel container
+      const userItems = onlineList.querySelectorAll("li");
+      
+      userItems.forEach(item => {
+        // Strip out emojis, status dots, and extra whitespace padding
+        let targetName = item.textContent.trim();
+        targetName = targetName.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, "").trim();
         
-        if (username && username !== myUsername) {
+        // Remove common status words or characters if they exist
+        targetName = targetName.replace(/^🟢|^🔴|^⚪/, "").trim();
+
+        // Populate option if it's valid and isn't yourself
+        if (targetName && targetName !== myUsername) {
           const opt = document.createElement("option");
-          opt.value = username;
-          opt.textContent = `🔒 Private: ${username}`;
+          opt.value = targetName;
+          opt.textContent = `🔒 Private: ${targetName}`;
           recipientSelect.appendChild(opt);
         }
       });
 
-      // Restore user's choice if they are still online
+      // Re-apply focus selection state safely
       recipientSelect.value = currentSelection;
       if (!recipientSelect.value) recipientSelect.value = "all";
     };
 
-    // Observe the online-list container. Whenever your JS alters it, the dropdown stays mirrored.
+    // Rebuild options on structural DOM changes...
     if (onlineList) {
-      const observer = new MutationObserver(syncUsersToDropdown);
+      const observer = new MutationObserver(forceSyncDropdown);
       observer.observe(onlineList, { childList: true, subtree: true });
     }
 
-    // --- 2. MOBILE INTERACTION MANAGEMENT ---
+    // ...AND rebuild instantly whenever you click/tap the dropdown (Intercepts main script wipes)
     if (recipientSelect) {
+      recipientSelect.addEventListener("mousedown", forceSyncDropdown);
+      recipientSelect.addEventListener("touchstart", forceSyncDropdown);
+      
       recipientSelect.addEventListener("change", () => {
         if (window.innerWidth <= 768) toggle.checked = false;
       });
